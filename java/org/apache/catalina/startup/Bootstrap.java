@@ -59,7 +59,7 @@ public final class Bootstrap {
     private static final File catalinaHomeFile;
 
     private static final Pattern PATH_PATTERN = Pattern.compile("(\"[^\"]*\")|(([^,])*)");
-
+    // 获取 catalina_home和catalina_base 将其添加到System.property中
     static {
         // Will always be non-null
         String userDir = System.getProperty("user.dir");

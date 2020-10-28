@@ -1233,6 +1233,11 @@ public class ContextConfig implements LifecycleListener {
      * where there is duplicate configuration, the most specific level wins. ie
      * an application's web.xml takes precedence over the host level or global
      * web.xml file.
+     *
+     * 1、扫描/WEB-INFO/web.xml
+     * 2、扫描web-fragment
+     * 3、查看ServletContainerInitializer,通过SPI方式配置,Spring就是采用这种方式
+     * 4、加载注解方式 servlet/annotation/ @WebServlet@WebFilter@WebListener和@HandlesTypes
      */
     protected void webConfig() {
         /*
@@ -1273,6 +1278,7 @@ public class ContextConfig implements LifecycleListener {
 
         // Parse context level web.xml
         InputSource contextWebXml = getContextWebXmlSource();
+        //读取所有xml文件并解析,包含tomcat/conf/下的xml文件
         if (!webXmlParser.parseWebXml(contextWebXml, webXml, false)) {
             ok = false;
         }
@@ -1283,8 +1289,9 @@ public class ContextConfig implements LifecycleListener {
 
         // Step 1. Identify all the JARs packaged with the application and those
         // provided by the container. If any of the application JARs have a
-        // web-fragment.xml it will be parsed at this point. web-fragment.xml
+        //        // web-fragment.xml it will be parsed at this point. web-fragment.xml
         // files are ignored for container provided JARs.
+        // Servlet 3.0 开始支持 web-fragment.xml 模块化
         Map<String,WebXml> fragments = processJarsForWebFragments(webXml, webXmlParser);
 
         // Step 2. Order the fragments.
@@ -1293,10 +1300,11 @@ public class ContextConfig implements LifecycleListener {
                 WebXml.orderWebFragments(webXml, fragments, sContext);
 
         // Step 3. Look for ServletContainerInitializer implementations
+        // 查看ServletContainerInitializer,通过SPI方式配置,Spring就是采用这种方式
         if (ok) {
             processServletContainerInitializers();
         }
-
+        // 加载使用注解的方式 、@HandlesTypes
         if  (!webXml.isMetadataComplete() || typeInitializerMap.size() > 0) {
             // Steps 4 & 5.
             processClasses(webXml, orderedFragments);
@@ -1371,7 +1379,11 @@ public class ContextConfig implements LifecycleListener {
         }
     }
 
-
+    /**
+     * 处理 注解 类   @
+     * @param webXml
+     * @param orderedFragments
+     */
     protected void processClasses(WebXml webXml, Set<WebXml> orderedFragments) {
         // Step 4. Process /WEB-INF/classes for annotations and
         // @HandlesTypes matches
