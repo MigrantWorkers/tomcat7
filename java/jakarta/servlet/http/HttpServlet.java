@@ -654,8 +654,9 @@ public abstract class HttpServlet extends GenericServlet {
         throws ServletException, IOException {
 
         String method = req.getMethod();
-
+        // 用于支持有条件 GET 操作的 getLastModified 方法,如果文件未发生变化,则使用缓存
         if (method.equals(METHOD_GET)) {
+            //Get操作,如果Servlet要支持该该功能,则需要重写getLastModified,并且结果不能为-1
             long lastModified = getLastModified(req);
             if (lastModified == -1) {
                 // servlet doesn't support if-modified-since, no reason

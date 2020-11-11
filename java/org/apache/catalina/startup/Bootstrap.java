@@ -163,7 +163,7 @@ public final class Bootstrap {
         if ((value == null) || (value.equals("")))
             return parent;
 
-        value = replace(value);
+        value = replace(value);//替换变量路径
 
         List<Repository> repositories = new ArrayList<>();
 
@@ -433,6 +433,7 @@ public final class Bootstrap {
      * @param args Command line arguments to be processed
      */
     public static void main(String args[]) {
+        log.debug("dhflajsd");
 
         synchronized (daemonLock) {
             if (daemon == null) {
